@@ -867,6 +867,10 @@
             <span class="cb-check">✓</span>
             <span class="cb-label">Data integration with existing tools</span>
           </div>
+          <div class="checkbox-item" onclick="toggleCheck(this)" data-value="Reaching or understanding Chinese & APAC social audiences">
+            <span class="cb-check">✓</span>
+            <span class="cb-label">Reaching or understanding Chinese & APAC social audiences</span>
+          </div>
         </div>
         <span class="error-msg" id="challenges-error">Please select at least one challenge.</span>
       </div>
@@ -889,7 +893,7 @@
         <div class="form-row">
           <label>Estimated Annual Budget <span class="optional-tag">Optional</span></label>
           <select id="budget-range">
-            <option value="">Prefer not to say</option>
+            <option value="">Select a range…</option>
             <option value="Under $20K USD">Under $20K USD</option>
             <option value="$20K – $50K USD">$20K – $50K USD</option>
             <option value="$50K – $100K USD">$50K – $100K USD</option>
@@ -1139,6 +1143,18 @@ const SOLUTION_MAP = {
     workstream: "Senior Client Relationships",
     value: "Elevate client conversations from tactical updates to strategic intelligence; make your team indispensable."
   },
+  "Reaching or understanding Chinese & APAC social audiences": {
+    product: "Social Listening & Analytics",
+    desc: "Meltwater is the only Western platform with native, at-scale access to Chinese social media — WeChat, Weibo, Xiaohongshu (RED), Douyin, Bilibili, Youku — alongside Korean (Naver, KakaoTalk), Japanese and Taiwanese sources that no other global intelligence platform covers at this depth.",
+    differentiators: [
+      "Native access to all major Chinese platforms — WeChat, Weibo, Xiaohongshu (RED), Douyin, Bilibili, Youku — not scraped or sampled",
+      "Korean, Japanese and Taiwanese source coverage unavailable from any Western competitor",
+      "Chinese-language sentiment analysis and audience segmentation built in natively",
+      "Critical for brands operating across Greater China, or targeting Chinese diaspora audiences in SEA markets"
+    ],
+    workstream: "Strategy & Planning",
+    value: "Unlock the Chinese and APAC social conversation that Western tools simply cannot see — a genuine, defensible data advantage."
+  },
   "Data integration with existing tools & platforms": {
     product: "Data & API Integration + BYOC",
     desc: "Meltwater's open API and Bring Your Own Content (BYOC) capability enable seamless integration with your clients' existing data environments — feeding intelligence directly into Salesforce, Power BI, Tableau, Slack, Microsoft Teams and custom platforms.",
@@ -1311,15 +1327,14 @@ function generateOutput(data) {
   const hasGEO = data.challenges.includes('AI & LLM brand visibility (GEO/AEO)');
   const hasInfluencer = data.challenges.includes('Influencer identification & management');
   const hasMeasurement = data.challenges.includes('Campaign measurement & ROI reporting');
-  const hasChinaSummary = data.markets.some(m => ['CN','HK','TW'].includes(m));
-  const hasAPACSummary = data.markets.some(m => ['SG','MY','ID','IN','PH','VN','TH','KH','MM','JP','KR'].includes(m));
+  const hasChineseAudienceChallenge = data.challenges.includes('Reaching or understanding Chinese & APAC social audiences');
 
   let summaryTitle = `${challengeCount} intelligence opportunity${challengeCount > 1 ? 's' : ''} identified for ${data.industry}`;
   let summaryBody = `Across ${data.markets.join(', ')}, ${clientLabel} faces ${challengeCount} challenge area${challengeCount > 1 ? 's' : ''} where Meltwater can add immediate, measurable value. `;
   summaryBody += `Unlike point solutions that address one problem at a time, Meltwater's unified platform handles every identified use case from a single data layer — the world's largest aggregated media and social intelligence dataset, processing over 1 billion data points daily. `;
 
-  if (hasChinaSummary || hasAPACSummary) {
-    summaryBody += `For the APAC markets in scope, Meltwater has a critical and unique advantage: native access to Chinese social platforms (WeChat, Weibo, Xiaohongshu, Douyin, Bilibili) alongside Korean, Japanese and SEA sources — coverage no Western competitor can match at this scale. `;
+  if (hasChineseAudienceChallenge) {
+    summaryBody += `For Chinese and APAC social audience intelligence, Meltwater has a unique and unmatched advantage: native access to WeChat, Weibo, Xiaohongshu (RED), Douyin and Bilibili alongside Korean, Japanese and Taiwanese sources — coverage no Western platform can replicate at this scale. `;
   }
   if (hasGEO) summaryBody += `The AI/LLM visibility opportunity is particularly timely — GenAI Lens tracks 9 major AI assistants simultaneously, enabling Omnicom to deliver GEO strategy as a measurable, retainer-worthy service. `;
   if (hasInfluencer && data.markets.some(m => ['ID','IN','PH','VN','TH'].includes(m))) {
@@ -1346,14 +1361,12 @@ function generateOutput(data) {
     const sol = SOLUTION_MAP[c];
     if (!sol) return;
 
-    // Pick contextually relevant differentiators based on markets + industry
-    const hasChinaMarket = data.markets.some(m => ['CN','HK','TW'].includes(m));
-    const hasAPACMarket = data.markets.some(m => ['SG','MY','ID','IN','PH','VN','TH','KH','MM','JP','KR'].includes(m));
+    // Only show Chinese/APAC data differentiators when explicitly requested as a challenge
+    const hasChineseIntent = data.challenges.includes('Reaching or understanding Chinese & APAC social audiences');
     const allDiffs = sol.differentiators || [];
 
-    // Filter: prioritise China/APAC diffs when relevant markets selected
     let shownDiffs = allDiffs.filter(d => {
-      if ((d.includes('Chinese') || d.includes('China') || d.includes('WeChat') || d.includes('Weibo')) && !hasChinaMarket && !hasAPACMarket) return false;
+      if ((d.includes('Chinese') || d.includes('China') || d.includes('WeChat') || d.includes('Weibo')) && !hasChineseIntent) return false;
       return true;
     }).slice(0, 4);
 
@@ -1403,8 +1416,7 @@ function generateOutput(data) {
     tableBody.appendChild(tr);
   });
 
-  const hasChinaMarket = data.markets.some(m => ['CN','HK','TW'].includes(m));
-  const hasAPACMarket = data.markets.some(m => ['SG','MY','ID','IN','PH','VN','TH','KH','MM','JP','KR'].includes(m));
+  const hasChineseAudienceInsight = data.challenges.includes('Reaching or understanding Chinese & APAC social audiences');
   const hasSocialChallenge = data.challenges.some(c => ['Understanding audience behaviour & conversation','Competitive intelligence & share of voice','Cultural & trend intelligence for content strategy','Social media performance & paid/owned/earned reporting'].includes(c));
   const hasInfluencerChallenge = data.challenges.includes('Influencer identification & management') || data.challenges.includes('Creator economy & UGC strategy');
   const hasPRChallenge = data.challenges.some(c => ['Brand reputation monitoring & crisis management','Earned media analysis & PR impact','Media relations & journalist outreach'].includes(c));
@@ -1415,8 +1427,8 @@ function generateOutput(data) {
   insights.push(`Meltwater processes <strong>1 billion+ data points every day</strong> — the largest aggregated media and social dataset in the world. This isn't a curated sample; it's the full global conversation, giving Omnicom's teams signals no competitor can see.`);
 
   // Chinese/APAC social if relevant markets selected
-  if (hasChinaMarket || hasAPACMarket) {
-    insights.push(`For ${data.markets.filter(m => ['CN','HK','TW','SG','MY','ID','IN','PH','VN','TH','KH','MM','JP','KR'].includes(m)).join(', ')}: Meltwater is the <strong>only Western platform with native, at-scale access to Chinese social media</strong> — WeChat, Weibo, Xiaohongshu (RED), Douyin, Bilibili, Youku — alongside Korean, Japanese and Taiwanese sources. No other global intelligence platform comes close for APAC-first briefs.`);
+  if (hasChineseAudienceInsight) {
+    insights.push(`Meltwater is the <strong>only Western platform with native, at-scale access to Chinese social media</strong> — WeChat, Weibo, Xiaohongshu (RED), Douyin, Bilibili, Youku — alongside Korean, Japanese and Taiwanese sources. This is a genuine data exclusivity that no Western competitor can replicate, and it's directly relevant to this brief.`);
   }
 
   // Social listening breadth
